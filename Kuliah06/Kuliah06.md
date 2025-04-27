@@ -21,39 +21,71 @@
 ---
 # **FTP (File Transfer Protocol)**
 ## FTP Communication Model
+- **FTP** (File Transfer Protocol) adalah protokol standar jaringan untuk mentransfer file antara client dan server melalui jaringan berbasis TCP/IP.
+- FTP menggunakan **model client-server**:
+  - **Client** mengirimkan permintaan untuk mengunduh atau mengunggah file.
+  - **Server** merespons permintaan tersebut dan menyediakan layanan transfer file.
+- FTP menggunakan **dua koneksi TCP**:
+  1. **Control Connection (Port 21)**: Untuk mengirimkan perintah dan menerima respons.
+  2. **Data Connection**: Untuk mentransfer file atau list direktori.
+- FTP bersifat **stateful**, sesi dikontrol melalui perintah dan respons.
+
+## Active vs Passive Mode
 
 ### Active Mode
-1. **Client initiates command connection** to FTP server on **port 21**.
-2. Client sends `PORT` command with its **IP address and port number**.
-3. Server initiates **data connection** from **port 20** to client's specified port.
-4. **Issue:** Firewalls/NAT might block the server's incoming connection.
+1. **Client memulai koneksi perintah** ke server FTP di **port 21**.
+2. Client mengirimkan perintah `PORT` dengan **alamat IP dan nomor port** miliknya.
+3. Server memulai **koneksi data** dari **port 20** ke port yang ditentukan oleh client.
+4. **Issue:** Firewall/NAT mungkin memblokir koneksi masuk dari server.
 
 ### Passive Mode
-1. Client opens **command connection** to server.
-2. Client sends `PASV` command.
-3. Server **opens a random port** and informs the client.
-4. Client **initiates the data connection**.
-5. **More firewall-friendly** since client initiates all connections.
+1. Client membuka **koneksi perintah** ke server.
+2. Client mengirimkan perintah `PASV`.
+3. Server **membuka port acak** dan memberitahukan client.
+4. Client **memulai koneksi data**.
+5. **Lebih "ramah" terhadap firewall** karena client yang memulai semua koneksi.
+
+| | Active Mode | Passive Mode |
+|:-|:-|:-|
+| **Control Connection** | Client membuka koneksi ke server (port 21) | Sama, client membuka ke server (port 21) |
+| **Data Connection** | Server membuka koneksi ke client (client harus membuka port) | Client membuka koneksi ke server (server memberikan port acak) |
+| **Penggunaan** | Lama dan klasik, perlu client membuka firewall port | Aman untuk client di balik firewall/NAT |
+| **Alur Sederhana** | Client: "Saya siap di port X" → Server: "Oke, saya sambung ke X" | Client: "Saya siap" → Server: "Sambung ke saya di port Y" |
 
 ---
 
-## Example FTP Communication
+## Contoh Komunikasi FTP
 - **Home Directory on FileZilla Server**
 - **Client connects to server**
 - **Log records on FileZilla Server**
 
-### FTP Reply Codes
-- **1xx** → Positive preliminary reply
-- **2xx** → Command successful
-- **3xx** → Command accepted, further action needed
-- **4xx** → Temporary error
-- **5xx** → Permanent error
+## Command & Reply Codes FTP
+
+### Beberapa Command FTP Umum
+- `USER <username>`: Kirim username.
+- `PASS <password>`: Kirim password.
+- `LIST`: Tampilkan daftar file/direktori.
+- `RETR <filename>`: Unduh file.
+- `STOR <filename>`: Unggah file.
+- `QUIT`: Akhiri sesi.
+
+### Contoh Reply Codes FTP
+- **1xx**: Positive Preliminary  
+  (contoh: 150 - File status okay, about to open data connection)
+- **2xx**: Positive Completion  
+  (contoh: 230 - User logged in)
+- **3xx**: Positive Intermediate  
+  (contoh: 331 - User name okay, need password)
+- **4xx**: Transient Negative Completion  
+  (contoh: 450 - Requested file action not taken)
+- **5xx**: Permanent Negative Completion  
+  (contoh: 550 - File unavailable)
 
 ---
 
-## FTP in Python
+## Contoh Aplikasi FTP pada Python
 
-### Example: `ftplib` List Directory
+### Contoh: `ftplib` List Directory
 ```python
 from ftplib import FTP
 
@@ -66,7 +98,7 @@ print('List of directory:', names)
 f.quit()
 ```
 
-### Example: `ftplib` Download File
+### Contoh: `ftplib` Download File
 ```python
 from ftplib import FTP
 
@@ -80,7 +112,6 @@ f.quit()
 
 ### Code Examples:
 [GitHub Repository](https://github.com/studiawan/network-programming/tree/master/bab06)
-
 
 # UDP (User Datagram Protocol) 
 UDP adalah protokol transport layer yang ringan dan tidak menggunakan koneksi (connectionless). Berbeda dengan TCP, UDP tidak melakukan proses handshake sebelum mengirim data, dan tidak menjamin data sampai atau urutannya benar. Karena itu, UDP cocok digunakan untuk aplikasi yang butuh kecepatan tinggi dan bisa mentoleransi kehilangan data sesekali.
